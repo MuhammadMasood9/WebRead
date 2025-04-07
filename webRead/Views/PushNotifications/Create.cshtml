@@ -1,0 +1,95 @@
+﻿@model webRead.Models.PushNotification
+@{
+    ViewData["Title"] = "Create New Push Notification";
+}
+<div class="container mt-5">
+    <h1>@ViewData["Title"]</h1>
+    <form method="post" action="@Url.Action("Create", "PushNotifications")">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="CreatedAt" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")" />
+        <input type="hidden" name="IsRead" value="false" />
+
+        <div class="mb-3">
+            <label for="Title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="Title" name="Title" value="@Model?.Title" required />
+        </div>
+        <div class="mb-3">
+            <label for="Message" class="form-label">Message</label>
+            <textarea class="form-control" id="Message" name="Message" required>@Model?.Message</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="TargetAudience" class="form-label">Target Audience</label>
+            <input type="text" class="form-control" id="TargetAudience" name="TargetAudience" value="@Model?.TargetAudience" required />
+        </div>
+        <div class="mb-3">
+            <label for="NotificationType" class="form-label">Notification Type</label>
+            <input type="text" class="form-control" id="NotificationType" name="NotificationType" value="@Model?.NotificationType" required />
+        </div>
+        <div class="mb-3">
+            <label for="SentAt" class="form-label">Sent At</label>
+            <input type="datetime-local" class="form-control" id="SentAt" name="SentAt" value="@(Model?.SentAt?.ToString("yyyy-MM-ddTHH:mm"))" />
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="IsSent" name="IsSent" value="true" @(Model?.IsSent == true ? "checked" : "") />
+            <input type="hidden" name="IsSent" value="false" />
+            <label class="form-check-label" for="IsSent">Is Sent</label>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach (var modelState in ViewData.ModelState.Values)
+                    {
+                        foreach (var error in modelState.Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a href="@Url.Action("Index", "PushNotifications")" class="btn btn-secondary">Cancel</a>
+    </form>
+
+</div>
+
+@section Scripts {
+    <script>
+        // Form submission handler with SweetAlert
+        document.querySelector("form").addEventListener("submit", function(event) {
+            // Only intercept if valid - let validation errors show normally
+            if (this.checkValidity()) {
+                event.preventDefault();
+
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait while we process your request',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                this.submit();
+            }
+        });
+
+        // Check for error message in ModelState
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <text>
+                Swal.fire({
+                    title: 'Validation Error',
+                    text: 'Please check the form for errors and try again',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            </text>
+        }
+    </script>
+}

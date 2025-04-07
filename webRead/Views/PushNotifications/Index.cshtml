@@ -1,0 +1,179 @@
+﻿@model IEnumerable<webRead.Models.PushNotification>
+@{
+    ViewData["Title"] = "Push Notifications";
+}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" href="@Url.Action("Create", "PushNotifications")">
+                <i class="fas fa-plus-circle"></i> Create New
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="notificationsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Message</th>
+                            <th>Target Audience</th>
+                            <th>Sent At</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var notification in Model)
+                            {
+                                <tr>
+                                    <td class="align-middle">@notification.Title</td>
+                                    <td class="align-middle">
+                                        @if (notification.Message?.Length > 50)
+                                        {
+                                            <span>@notification.Message.Substring(0, 47)...</span>
+                                            <button class="btn btn-link btn-sm p-0"
+                                                    onclick="showFullMessage('@notification.Title', '@notification.Message.Replace("'", "\\'"))')">
+                                                View
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            @notification.Message
+                                        }
+                                    </td>
+                                    <td class="align-middle">@notification.TargetAudience</td>
+                                    <td class="align-middle">
+                                        @if (notification.SentAt.HasValue)
+                                        {
+                                            <span class="badge text-dark">@notification.SentAt.Value.ToString("MM/dd/yyyy")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">N/A</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        @if (notification.IsSent)
+                                        {
+                                            <span class="badge bg-success">Sent</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group gap-2" role="group">
+                                            <a href="@Url.Action("Edit", "PushNotifications", new { id = notification.NotificationId })"
+                                               class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form method="post" class="d-inline"
+                                                  action="@Url.Action("Delete", "PushNotifications", new { id = notification.NotificationId })"
+                                                  onsubmit="return confirmDelete(event, '@notification.Title')">
+                                                @Html.AntiForgeryToken()
+                                                <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No notifications found
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            <small>Total notifications: @Model.Count()</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+
+            // Initialize DataTables (if you have it included)
+            if ($.fn.DataTable) {
+                $('#notificationsTable').DataTable({
+                    "responsive": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "pageLength": 10
+                });
+            }
+        });
+
+        // Function to show full message content
+        function showFullMessage(title, message) {
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: 'info',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+
+        // Function to show SweetAlert confirmation before delete
+        function confirmDelete(event, title) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete the notification "${title}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+            return false;
+        }
+
+        // Check for success message in TempData
+        @if (TempData["SwalSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@TempData["SwalSuccess"]',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+
+        // Check for error message in TempData
+        @if (TempData["SwalError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '@TempData["SwalError"]',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+}

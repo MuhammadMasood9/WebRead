@@ -1,0 +1,205 @@
+﻿@model IEnumerable<webRead.Models.Banner>
+@{
+    ViewData["Title"] = "Manage Banners";
+}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" href="@Url.Action("Create", "Banners")">
+                <i class="fas fa-plus-circle"></i> Create New
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="bannersTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Link</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var banner in Model)
+                            {
+                                <tr>
+                                    <td class="align-middle">
+                                        @if (!string.IsNullOrEmpty(banner.ImageUrl))
+                                        {
+                                            <img src="@banner.ImageUrl" alt="@banner.Title" class="img-thumbnail" style="max-height: 50px;" />
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">No Image</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">@banner.Title</td>
+                                    <td class="align-middle">
+                                        @if (banner.Description?.Length > 50)
+                                        {
+                                            <span>@banner.Description.Substring(0, 47)...</span>
+                                            <button class="btn btn-link btn-sm p-0"
+                                                    onclick="showFullDescription('@banner.Title', '@(banner.Description?.Replace("'", "\\'"))')">
+                                                View
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            @banner.Description
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        @if (!string.IsNullOrEmpty(banner.BannerLink))
+                                        {
+                                            <a href="@banner.BannerLink" target="_blank" class="text-truncate d-inline-block" style="max-width: 150px;">
+                                                @banner.BannerLink
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No link</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        @if (banner.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        <span data-bs-toggle="tooltip" title="Created: @banner.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+Updated: @(banner.UpdatedAt?.ToString("MM/dd/yyyy HH:mm") ?? "Never")">
+                                            @banner.CreatedAt.ToString("MM/dd/yyyy")
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group gap-1" role="group">
+                                            <a href="@Url.Action("Edit", "Banners", new { id = banner.BannerId })"
+                                               class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" class="d-inline"
+                                                  action="@Url.Action("ToggleActive", "Banners", new { id = banner.BannerId })">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn @(banner.IsActive ? "btn-secondary" : "btn-success") btn-sm"
+                                                        data-bs-toggle="tooltip" title="@(banner.IsActive ? "Deactivate" : "Activate")">
+                                                    <i class="fas @(banner.IsActive ? "fa-eye-slash" : "fa-eye")"></i>
+                                                </button>
+                                            </form>
+                                            <form method="post" class="d-inline"
+                                                  action="@Url.Action("Delete", "Banners", new { id = banner.BannerId })"
+                                                  onsubmit="return confirmDelete(event, '@banner.Title')">
+                                                @Html.AntiForgeryToken()
+                                                <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No banners found
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            <small>Total banners: @Model.Count()</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+
+            // Initialize DataTables (if you have it included)
+            if ($.fn.DataTable) {
+                $('#bannersTable').DataTable({
+                    "responsive": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "pageLength": 10
+                });
+            }
+        });
+
+        // Function to show full description
+        function showFullDescription(title, description) {
+            Swal.fire({
+                title: title,
+                text: description,
+                icon: 'info',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+
+        // Function to show SweetAlert confirmation before delete
+        function confirmDelete(event, title) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete the banner "${title}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+            return false;
+        }
+
+        // Check for success messages in TempData
+        @if (TempData["SwalSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@TempData["SwalSuccess"]',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+
+        // Check for error messages in TempData
+        @if (TempData["SwalError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '@TempData["SwalError"]',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+}
