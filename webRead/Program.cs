@@ -9,7 +9,8 @@ builder.Services.AddControllersWithViews();
 
 // Register ApplicationDbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .LogTo(Console.WriteLine, LogLevel.Information));
 
 var app = builder.Build();
 

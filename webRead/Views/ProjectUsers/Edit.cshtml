@@ -1,0 +1,134 @@
+﻿@model webRead.Models.ProjectUser
+
+@{
+    ViewData["Title"] = "Edit Project User Assignment";
+}
+
+@inject webRead.Data.ApplicationDbContext _context
+@{
+    var projects = ViewBag.Projects as List<webRead.Models.Project>;
+    var tasks = ViewBag.Tasks as List<webRead.Models.TaskProject>;
+    var users = ViewBag.Users as List<webRead.Models.Donor>;
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ProjectUserId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                @if (TempData["ValidationErrors"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <strong>Validation Errors:</strong> @TempData["ValidationErrors"]
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="ProjectID" class="form-label">Project</label>
+                    <select asp-for="ProjectID" class="form-control" required onchange="loadTasks(this.value)">
+                        <option value="">Select a Project</option>
+                        @foreach (var project in projects)
+                        {
+                            <option value="@project.ProjectId" selected="@(project.ProjectId == Model.ProjectID)">@project.ProjectName (@project.ProjectId)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ProjectID" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TaskId" class="form-label">Task</label>
+                    <select asp-for="TaskId" class="form-control" required>
+                        <option value="">Select a Task</option>
+                        @foreach (var task in tasks)
+                        {
+                            <option value="@task.TaskId" selected="@(task.TaskId == Model.TaskId)">@task.Name (@task.TaskId)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TaskId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserId" class="form-label">User (Donor)</label>
+                    <select asp-for="UserId" class="form-control" required>
+                        <option value="">Select a User</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.CorrespondenceId" selected="@(user.CorrespondenceId == Model.UserId)">@user.Name (@user.CorrespondenceId)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="UserId" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Update Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadTasks(projectId) {
+            if (projectId) {
+                fetch(`/ProjectUsers/GetTasksByProject?projectId=${projectId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const taskSelect = document.querySelector('select[asp-for="TaskId"]');
+                        taskSelect.innerHTML = '<option value="">Select a Task</option>';
+                        data.forEach(task => {
+                            const option = document.createElement('option');
+                            option.value = task.taskId;
+                            option.text = `${task.name} (${task.taskId})`;
+                            if (task.taskId == @Model.TaskId) option.selected = true;
+                            taskSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error loading tasks:', error));
+            } else {
+                document.querySelector('select[asp-for="TaskId"]').innerHTML = '<option value="">Select a Task</option>';
+            }
+        }
+
+        document.querySelector("form").addEventListener("submit", function(event) {
+            if (this.checkValidity()) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait while we process your request',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                this.submit();
+            }
+        });
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'Please check the form for errors and try again',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

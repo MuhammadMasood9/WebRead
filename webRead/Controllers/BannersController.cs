@@ -4,27 +4,26 @@ using webRead.Data;
 using webRead.Models;
 using System;
 using System.Threading.Tasks;
-using webRead.Models.webRead.Models;
 
 namespace webRead.Controllers
 {
     public class BannersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public BannersController(ApplicationDbContext context)
+        public BannersController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
-        // Display the list of banners
         public async Task<IActionResult> Index()
         {
             var banners = await _context.Banners.ToListAsync();
             return View(banners);
         }
 
-        // Display the Create form
         public IActionResult Create()
         {
             var banner = new Banner
@@ -35,12 +34,10 @@ namespace webRead.Controllers
             return View(banner);
         }
 
-        // Handle the Create form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Banner banner)
         {
-            // Ensure CreatedAt is properly set
             if (banner.CreatedAt == default)
             {
                 banner.CreatedAt = DateTime.UtcNow;
@@ -58,13 +55,12 @@ namespace webRead.Controllers
                 catch (Exception ex)
                 {
                     TempData["SwalError"] = "An error occurred: " + (ex.InnerException?.Message ?? ex.Message);
-                    ModelState.AddModelError("", "An error occurred while saving: " + ex.InnerException?.Message ?? ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving: " + ex.Message);
                 }
             }
             return View(banner);
         }
 
-        // Display the Edit form
         public async Task<IActionResult> Edit(int id)
         {
             var banner = await _context.Banners.FindAsync(id);
@@ -76,7 +72,6 @@ namespace webRead.Controllers
             return View(banner);
         }
 
-        // Handle the Edit form submission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("BannerId,AdminId,Title,Description,ImageUrl,BannerLink,IsActive,CreatedAt")] Banner banner)
@@ -87,7 +82,6 @@ namespace webRead.Controllers
                 return NotFound();
             }
 
-            // Set the UpdatedAt timestamp
             banner.UpdatedAt = DateTime.UtcNow;
 
             if (ModelState.IsValid)
@@ -114,14 +108,12 @@ namespace webRead.Controllers
                 catch (Exception ex)
                 {
                     TempData["SwalError"] = "An error occurred: " + (ex.InnerException?.Message ?? ex.Message);
-                    ModelState.AddModelError("", "An error occurred while saving: " + ex.InnerException?.Message ?? ex.Message);
-                    return View(banner);
+                    ModelState.AddModelError("", "An error occurred while saving: " + ex.Message);
                 }
             }
             return View(banner);
         }
 
-        // Display the Delete confirmation page
         public async Task<IActionResult> Delete(int id)
         {
             var banner = await _context.Banners.FindAsync(id);
@@ -133,7 +125,6 @@ namespace webRead.Controllers
             return View(banner);
         }
 
-        // Handle the Delete submission
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -152,7 +143,6 @@ namespace webRead.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Toggle banner activation status
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleActive(int id)

@@ -1,0 +1,69 @@
+﻿@model webRead.Models.TaxCertificate
+@{
+    ViewData["Title"] = "Edit Tax Certificate";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="IssuedDate" class="form-label"></label>
+                        <input asp-for="IssuedDate" class="form-control" type="date" />
+                        <span asp-validation-for="IssuedDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Current Image</label>
+                                <img src="data:image/jpeg;base64,@Model.ImageUrl" alt="Current Certificate" class="img-thumbnail" style="max-height: 100px;" />
+                            </div>
+                        }
+                        <label for="imageFile" class="form-label">Upload New Image</label>
+                        <input type="file" name="imageFile" accept="image/*" class="form-control" />
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <small class="form-text text-muted">Leave empty to keep the current image.</small>
+                        }
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label asp-for="Message" class="form-label"></label>
+                        <textarea asp-for="Message" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Message" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

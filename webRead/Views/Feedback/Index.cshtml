@@ -1,0 +1,155 @@
+﻿@model IEnumerable<webRead.Models.Feedback>
+@{
+    ViewData["Title"] = "Manage Feedback";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" href="@Url.Action("Create", "Feedback")">
+                <i class="fas fa-plus-circle"></i> Create New
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="feedbackTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Message</th>
+                            <th>Rating</th>
+                            <th>Submitted At</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var feedback in Model)
+                            {
+                                <tr>
+                                    <td>@feedback.Name</td>
+                                    <td>@feedback.Email</td>
+                                    <td>
+                                        @if (feedback.Message?.Length > 50)
+                                        {
+                                            <span>@feedback.Message.Substring(0, 47)...</span>
+                                            <button class="btn btn-link btn-sm p-0"
+                                                    onclick="showFullMessage('@feedback.Name', '@(feedback.Message?.Replace("'", "\\'"))')">
+                                                View
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            @feedback.Message
+                                        }
+                                    </td>
+                                    <td>@feedback.Rating</td>
+                                    <td>@feedback.SubmitedAt.ToString("MM/dd/yyyy HH:mm")</td>
+                                    <td class="text-center">
+                                        <div class="btn-group gap-1" role="group">
+                                            <a href="@Url.Action("Edit", "Feedback", new { id = feedback.FeedbackId })"
+                                               class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" class="d-inline"
+                                                  action="@Url.Action("Delete", "Feedback", new { id = feedback.FeedbackId })"
+                                                  onsubmit="return confirmDelete(event, '@feedback.Name')">
+                                                @Html.AntiForgeryToken()
+                                                <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No feedback found
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            <small>Total feedback: @Model.Count()</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            if ($.fn.DataTable) {
+                $('#feedbackTable').DataTable({
+                    "responsive": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "pageLength": 10
+                });
+            }
+        });
+
+        function showFullMessage(name, message) {
+            Swal.fire({
+                title: name,
+                text: message,
+                icon: 'info',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+
+        function confirmDelete(event, name) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete the feedback from "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+            return false;
+        }
+
+        @if (TempData["SwalSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@TempData["SwalSuccess"]',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+
+        @if (TempData["SwalError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '@TempData["SwalError"]',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+}

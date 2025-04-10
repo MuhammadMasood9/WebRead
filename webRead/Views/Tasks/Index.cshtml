@@ -1,0 +1,193 @@
+﻿@model IEnumerable<webRead.Models.TaskProject>
+@{
+    ViewData["Title"] = "Manage Tasks";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" href="@Url.Action("Create", "Tasks")">
+                <i class="fas fa-plus-circle"></i> Create New
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="taskTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Project</th>
+                            <th>Name</th>
+                            <th>Progress</th>
+                            <th>Report</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var task in Model)
+                            {
+                                <tr>
+                                    <td class="align-middle">@task.Project?.ProjectName (@task.ProjectId)</td>
+                                    <td class="align-middle">@task.Name</td>
+                                    <td class="align-middle">@task.Progress.ToString("F0")%</td>
+                                    <td class="align-middle">
+                                        @if (!string.IsNullOrEmpty(task.Report))
+                                        {
+                                            <img src="data:image/png;base64,@task.Report" alt="Report for @task.Name" class="img-thumbnail" style="max-height: 50px;" />
+                                            <button class="btn btn-link btn-sm p-0"
+                                                    onclick="showFullReport('@task.Name', 'data:image/png;base64,@task.Report')">
+                                                View Full
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">No Report</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        @if (task.Status == 1)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">@(task.CreatedAt?.ToString("MM/dd/yyyy") ?? "Not Set")</td>
+                                    <td class="text-center">
+                                        <div class="btn-group gap-1" role="group">
+                                            <a href="@Url.Action("Edit", "Tasks", new { id = task.TaskId })"
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" class="d-inline"
+                                                  action="@Url.Action("ToggleStatus", "Tasks", new { id = task.TaskId })"
+                                                  onsubmit="return confirmToggle(event, '@task.Name', '@(task.Status == 1 ? "deactivate" : "activate")')">
+                                                @Html.AntiForgeryToken()
+                                                <button class="btn btn-info btn-sm">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </form>
+                                            <form method="post" class="d-inline"
+                                                  action="@Url.Action("Delete", "Tasks", new { id = task.TaskId })"
+                                                  onsubmit="return confirmDelete(event, '@task.Name')">
+                                                @Html.AntiForgeryToken()
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-info-circle me-2"></i> No tasks found
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            <small>Total tasks: @Model.Count()</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+            $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+
+            // Initialize DataTables (if you have it included)
+            if ($.fn.DataTable) {
+                $('#taskTable').DataTable({
+                    "responsive": true,
+                    "lengthChange": true,
+                    "autoWidth": false,
+                    "pageLength": 10
+                });
+            }
+        });
+        function showFullReport(name, reportSrc) {
+            Swal.fire({
+                title: name,
+                html: `<img src="${reportSrc}" alt="${name}" style="max-width: 100%;" />`,
+                icon: 'info',
+                confirmButtonColor: '#3085d6'
+            });
+        }
+
+        function confirmToggle(event, name, action) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to ${action} the task "${name}"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${action} it!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+            return false;
+        }
+
+        function confirmDelete(event, name) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete the task "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
+                }
+            });
+            return false;
+        }
+
+        @if (TempData["SwalSuccess"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Success!',
+                        text: '@TempData["SwalSuccess"]',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+
+        @if (TempData["SwalError"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '@TempData["SwalError"]',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+}

@@ -1,0 +1,140 @@
+﻿@model webRead.Models.ProjectUser
+
+@{
+    ViewData["Title"] = "Create Project User Assignment";
+}
+
+@inject webRead.Data.ApplicationDbContext _context
+@{
+    var projects = ViewBag.Projects as List<webRead.Models.Project>;
+    var tasks = ViewBag.Tasks as List<webRead.Models.TaskProject>;
+    var users = ViewBag.Users as List<webRead.Models.Donor>;
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" asp-action="Index">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                @if (TempData["ValidationErrors"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <strong>Validation Errors:</strong> @TempData["ValidationErrors"]
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="ProjectID" class="form-label">Project</label>
+                    <select asp-for="ProjectID" class="form-control" required onchange="loadTasks(this.value)">
+                        <option value="">Select a Project</option>
+                        @foreach (var project in projects)
+                        {
+                            <option value="@project.ProjectId">@project.ProjectName (@project.ProjectId)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ProjectID" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TaskId" class="form-label">Task</label>
+                    <select asp-for="TaskId" class="form-control" required>
+                        <option value="">Select a Task</option>
+                        @foreach (var task in tasks)
+                        {
+                            <option value="@task.TaskId">@task.Name (@task.TaskId)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TaskId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserId" class="form-label">User (Donor)</label>
+                    <select asp-for="UserId" class="form-control" required>
+                        <option value="">Select a User</option>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.CorrespondenceId">@user.Name (@user.CorrespondenceId)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="UserId" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+               function loadTasks(projectId) {
+            if (projectId) {
+                fetch(`/ProjectUsers/GetTasksByProject?projectId=${projectId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Try different selectors to find the task dropdown
+                        const taskSelect = document.getElementById("TaskId");
+                        if (!taskSelect) {
+                            console.error("Could not find task dropdown with ID 'TaskId'");
+                            return;
+                        }
+
+                        taskSelect.innerHTML = '<option value="">Select a Task</option>';
+                        data.forEach(task => {
+                            const option = document.createElement('option');
+                            option.value = task.taskId;
+                            option.text = `${task.name} (${task.taskId})`;
+                            taskSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error loading tasks:', error));
+            } else {
+                const taskSelect = document.getElementById("TaskId");
+                if (taskSelect) {
+                    taskSelect.innerHTML = '<option value="">Select a Task</option>';
+                }
+            }
+        }
+        document.querySelector("form").addEventListener("submit", function(event) {
+            if (this.checkValidity()) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait while we process your request',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                this.submit();
+            }
+        });
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'Please check the form for errors and try again',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

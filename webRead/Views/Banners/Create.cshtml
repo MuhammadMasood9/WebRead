@@ -1,0 +1,139 @@
+﻿@model webRead.Models.Banner
+@{
+    ViewData["Title"] = "Create Banner";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" href="@Url.Action("Index", "Banners")">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+                    <!-- Left column for image -->
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Banner Image</label>
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <img id="imagePreview" src="/images/placeholder-image.png" alt="Preview" class="img-fluid mb-2" />
+                                    <input type="file" id="imageInput" class="form-control" accept="image/*" onchange="convertToBase64();" />
+                                    <input type="hidden" asp-for="ImageUrl" id="imageBase64" />
+                                    <small class="text-muted">Maximum size: 2MB</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">Active</label>
+                        </div>
+                    </div>
+
+                    <!-- Right column for other fields -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BannerLink" class="form-label">Link URL</label>
+                            <input asp-for="BannerLink" class="form-control" type="url" placeholder="https://" />
+                            <span asp-validation-for="BannerLink" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AdminId" class="form-label">Admin ID</label>
+                            <input asp-for="AdminId" class="form-control" type="number" min="1" required />
+                            <span asp-validation-for="AdminId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Banner
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function convertToBase64() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Image size exceeds 2MB limit.',
+                        icon: 'error'
+                    });
+                    fileInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    // Strip the data URI prefix, store only the base64 string
+                    const base64String = e.target.result.split(',')[1];
+                    document.getElementById('imageBase64').value = base64String;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.querySelector("form").addEventListener("submit", function(event) {
+            if (this.checkValidity()) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait while we process your request',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                this.submit();
+            }
+        });
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'Please check the form for errors and try again',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+            </text>
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

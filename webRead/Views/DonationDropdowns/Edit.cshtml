@@ -1,0 +1,44 @@
+﻿@model webRead.Models.DonationDropdown
+@{
+    ViewData["Title"] = "Edit Donation Dropdown";
+}
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="CreatedAt" />
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DonationType" class="form-label"></label>
+                        <input asp-for="DonationType" class="form-control" />
+                        <span asp-validation-for="DonationType" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DonationStatus" class="form-label"></label>
+                        <select asp-for="DonationStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                        <span asp-validation-for="DonationStatus" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

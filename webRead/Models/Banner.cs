@@ -1,11 +1,11 @@
-﻿namespace webRead.Models
+﻿
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+namespace webRead.Models
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+  
 
-    namespace webRead.Models
-    {
         public class Banner
         {
             [Key]
@@ -37,5 +37,5 @@
             [Column("updated_at")]
             public DateTime? UpdatedAt { get; set; }
         }
-    }
+    
 }

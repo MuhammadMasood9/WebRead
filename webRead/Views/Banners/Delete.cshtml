@@ -1,0 +1,160 @@
+﻿@model webRead.Models.Banner
+@{
+    ViewData["Title"] = "Delete Banner";
+}
+
+<div class="container mt-5">
+    <div class="card shadow border-danger">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h3 class="m-0">@ViewData["Title"]</h3>
+            <a class="btn btn-light" href="@Url.Action("Index", "Banners")">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Are you sure you want to delete this banner? This action cannot be undone.
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-4 text-center mb-3">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid img-thumbnail" style="max-height: 200px;" />
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary">No image available</div>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%">Title</th>
+                                <td>@Model.Title</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>
+                                    @if (string.IsNullOrEmpty(Model.Description))
+                                    {
+                                        <span class="text-muted">No description</span>
+                                    }
+                                    else
+                                    {
+                                        @Model.Description
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Link</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.BannerLink))
+                                    {
+                                        <a href="@Model.BannerLink" target="_blank" class="btn btn-link">@Model.BannerLink</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No link provided</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactive</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Created</th>
+                                <td>@Model.CreatedAt.ToString("MM/dd/yyyy HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <th>Updated</th>
+                                <td>
+                                    @if (Model.UpdatedAt.HasValue)
+                                    {
+                                        @Model.UpdatedAt.Value.ToString("MM/dd/yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not updated</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Admin ID</th>
+                                <td>@Model.AdminId</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <form method="post" asp-action="Delete" asp-route-id="@Model.BannerId">
+                @Html.AntiForgeryToken()
+                <div class="mt-4 text-end">
+                    <a href="@Url.Action("Index", "Banners")" class="btn btn-secondary me-2">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger" onclick="return confirmDelete('@Model.Title')">
+                        <i class="fas fa-trash"></i> Delete Banner
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(title) {
+            return new Promise((resolve) => {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `Do you want to delete the banner "${title}"? This action cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    resolve(result.isConfirmed);
+                });
+            });
+        }
+
+        @if (TempData["SwalSuccess"] != null)
+        {
+            <text>
+                        Swal.fire({
+                            title: 'Success!',
+                            text: '@TempData["SwalSuccess"]',
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6'
+                        });
+            </text>
+        }
+
+        @if (TempData["SwalError"] != null)
+        {
+            <text>
+                        Swal.fire({
+                            title: 'Error!',
+                            text: '@TempData["SwalError"]',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6'
+                        });
+            </text>
+        }
+    </script>
+}
