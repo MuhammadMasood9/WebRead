@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
 using webRead.Models;
 
@@ -51,7 +52,7 @@ namespace webRead.Data
                 .WithMany(p => p.Tasks)
                 .HasForeignKey(t => t.ProjectId)
                 .HasConstraintName("FK_Tasks_Projects_ProjectID")
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade); // Changed to Cascade
             modelBuilder.Entity<TaskProject>()
                 .Property(t => t.ProjectId)
                 .HasColumnName("ProjectID");
@@ -67,13 +68,13 @@ namespace webRead.Data
                 .WithMany()
                 .HasForeignKey(pu => pu.ProjectID)
                 .HasConstraintName("FK_ProjectUsers_Projects_ProjectID")
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade); // Changed to Cascade
             modelBuilder.Entity<ProjectUser>()
                 .HasOne(pu => pu.Task)
                 .WithMany()
                 .HasForeignKey(pu => pu.TaskId)
                 .HasConstraintName("FK_ProjectUsers_Tasks_TaskID")
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade); // Changed to Cascade
 
             // Donor configuration
             modelBuilder.Entity<Donor>().ToTable("Donor", "dbo");
@@ -101,7 +102,7 @@ namespace webRead.Data
                 .HasColumnName("DontaionType");
 
             // Payment configuration
-            modelBuilder.Entity<Payment>().ToTable("Payments", "dbo"); // Corrected to plural "Payments"
+            modelBuilder.Entity<Payment>().ToTable("Payments", "dbo");
             modelBuilder.Entity<Payment>().HasKey(p => p.Id);
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
@@ -111,11 +112,11 @@ namespace webRead.Data
                 .HasPrecision(18, 2);
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Status)
-                .HasColumnType("int") // Explicitly define as int, adjust if nullable in DB
-                .IsRequired(false);   // Set to false if nullable, true if not
+                .HasColumnType("int")
+                .IsRequired(false);
             modelBuilder.Entity<Payment>()
                 .Property(p => p.UserCorrespondenceId)
-                .HasColumnName("UserCorrespondenceId"); // Ensure exact match
+                .HasColumnName("UserCorrespondenceId");
         }
     }
 }

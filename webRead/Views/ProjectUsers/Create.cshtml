@@ -56,7 +56,7 @@
 
                 <div class="mb-3">
                     <label asp-for="UserId" class="form-label">User (Donor)</label>
-                    <select asp-for="UserId" class="form-control" required>
+                    <select asp-for="UserId" class="form-control select2-user" required>
                         <option value="">Select a User</option>
                         @foreach (var user in users)
                         {
@@ -77,13 +77,51 @@
 </div>
 
 @section Scripts {
+    <!-- Include jQuery (required by Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include Select2 CSS and JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
-               function loadTasks(projectId) {
+        // Initialize Select2 for the User (Donor) dropdown
+        $(document).ready(function () {
+            $('.select2-user').select2({
+                placeholder: "Select a User",
+                allowClear: true,
+                width: '100%',
+                matcher: function (params, data) {
+                    // If there's no search term, return all options
+                    if (!params.term || params.term.trim() === '') {
+                        return data;
+                    }
+
+                    // Convert search term to lowercase for case-insensitive search
+                    const term = params.term.toLowerCase();
+                    const text = data.text.toLowerCase();
+
+                    // Search in both Name and CorrespondenceId
+                    if (text.includes(term)) {
+                        return data;
+                    }
+
+                    return null; // No match
+                }
+            });
+
+            // Ensure Select2 plays nicely with ASP.NET validation
+            $('.select2-user').on('change', function () {
+                $(this).trigger('input'); // Trigger validation
+            });
+        });
+
+        // Load tasks based on selected project
+        function loadTasks(projectId) {
             if (projectId) {
                 fetch(`/ProjectUsers/GetTasksByProject?projectId=${projectId}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Try different selectors to find the task dropdown
                         const taskSelect = document.getElementById("TaskId");
                         if (!taskSelect) {
                             console.error("Could not find task dropdown with ID 'TaskId'");
@@ -106,6 +144,8 @@
                 }
             }
         }
+
+        // SweetAlert2 loading animation on form submit
         document.querySelector("form").addEventListener("submit", function(event) {
             if (this.checkValidity()) {
                 event.preventDefault();
