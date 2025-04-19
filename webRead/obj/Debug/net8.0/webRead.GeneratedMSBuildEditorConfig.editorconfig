@@ -56,6 +56,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25Ecm9wZG93bnNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/WebRead/webRead/Views/DonationMainHeads/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25NYWluSGVhZHNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WebRead/webRead/Views/DonationMainHeads/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25NYWluSGVhZHNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WebRead/webRead/Views/DonationMainHeads/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25NYWluSGVhZHNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WebRead/webRead/Views/DonationMainHeads/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25NYWluSGVhZHNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/WebRead/webRead/Views/Feedback/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

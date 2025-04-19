@@ -1,0 +1,40 @@
+﻿@model webRead.Models.DonationMainHead
+
+@{
+    ViewData["Title"] = "Edit Donation Main Head";
+}
+
+<h1>Edit Donation Main Head</h1>
+
+<form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="MID" />
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Image" class="control-label"></label>
+        <input asp-for="Image" class="form-control" />
+        <span asp-validation-for="Image" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Status" class="control-label"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    <div class="form-group mt-3">
+        <input type="submit" value="Save" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,38 @@
+﻿@model IEnumerable<webRead.Models.DonationMainHead>
+
+@{
+    ViewData["Title"] = "Donation Main Heads";
+}
+
+<h1>Donation Main Heads</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.MID)</th>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Image)</th>
+            <th>@Html.DisplayNameFor(model => model.Status)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.MID)</td>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Image)</td>
+                <td>@(item.Status == "1" ? "Active" : "Inactive")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MID" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.MID" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.MID" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

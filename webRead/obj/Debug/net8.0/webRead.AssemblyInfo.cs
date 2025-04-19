@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("webRead")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+30c69598efb9d13aba0bae7c5cefefa460848821")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa4b15b5c65fba4c32a7257d744cf63c140f43ec")]
 [assembly: System.Reflection.AssemblyProductAttribute("webRead")]
 [assembly: System.Reflection.AssemblyTitleAttribute("webRead")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
