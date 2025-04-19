@@ -15,7 +15,7 @@ namespace webRead.Models
         public string? Image { get; set; }
 
         [Required(ErrorMessage = "Status is required")]
-        [RegularExpression("^[0-1]$", ErrorMessage = "Status must be a or 1")]
-        public string Status { get; set; }
+        [Range(0, 1, ErrorMessage = "Status must be 0 or 1")]
+        public int Status { get; set; }
     }
 }

@@ -36,7 +36,9 @@ namespace webRead.Data
 
             // Banner configuration
             modelBuilder.Entity<DonationMainHead>().ToTable("DonationMainHeads", "dbo");
-            modelBuilder.Entity<DonationMainHead>().HasKey(b => b.MID);
+            modelBuilder.Entity<DonationMainHead>().HasKey(b => b.MID); modelBuilder.Entity<DonationMainHead>()
+        .Property(b => b.Status)
+        .HasColumnType("int");
 
 
             // Feedback configuration
